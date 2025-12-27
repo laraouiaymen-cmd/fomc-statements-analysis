@@ -23,10 +23,20 @@ pip install -r requirements.txt
 ---
 
 ## Usage
-Run the full experiment end-to-end:
+### 1. Reproduce results (Snapshot Mode)
+To run the analysis exactly as reported (using the frozen dataset):
 ```bash
 python main.py
 ```
+This is the **default behavior**. It skips the update check to ensure reproducibility.
+
+### 2. Update data and run
+If you want to fetch new FOMC statements and rebuild the dataset:
+```bash
+python main.py --update-data
+```
+> [!WARNING]
+> Updating the data changes the sample size and will likely produce slightly different results than the report.
 
 ### Expected output
 - Prints progress checkpoints (load data → build embeddings → run models → save results)
@@ -92,18 +102,22 @@ the dataset size is unchanged.
 ---
 
 ## Optional: Update data / rebuild processed dataset
-If you want to refresh statements and rebuild the final CSV:
+You can use the flag in `main.py` which handles this automatically:
 
+```bash
+python main.py --update-data
+```
+
+Or run the scripts manually:
 ```bash
 python src/data/update_fomc_statements.py
 python src/data/prepare_processed_data.py
 ```
-
 ---
 
 ## Optional: Live inference
-If you already ran `main.py` and saved the champion artifacts:
-
-```bash
-python -c "from src.inference import run_interactive_prediction; run_interactive_prediction()"
+At the end of `main.py`, the script will automatically ask:
 ```
+Do you want to run live predictions with the Grand Champion model? (y/n):
+```
+Type `y` to enter an interactive mode where you can type your own "FOMC statements" and see the model's prediction.
