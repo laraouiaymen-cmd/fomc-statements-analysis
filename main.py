@@ -33,10 +33,19 @@ from src.evaluation import (
 )
 from src.model_selection import select_models_for_inference
 from src.embedding_cache import save_embeddings, load_embeddings
+from src.data.update_fomc_statements import update_fomc_statements
+from src.data.prepare_processed_data import process_statements
 
 print("="*70)
 print("FOMC EMBEDDING COMPARISON EXPERIMENT")
 print("="*70)
+
+# ============================================================================
+# 0. CHECK FOR UPDATES
+# ============================================================================
+print("\n[0/6] Checking for new FOMC statements...")
+update_fomc_statements()
+process_statements()
 
 # ============================================================================
 # 1. LOAD DATA
