@@ -70,7 +70,7 @@ project_root/
 │  ├─ processed/
 │  │  └─ fomc_statements.csv   # Final dataset used by main.py
 │  └─ embeddings_cache/        # Created on first run (may be absent initially)
-└─ results/                    # Generated outputs (CSVs + saved champion model)
+└─ results/                    # Generated outputs (CSVs & PNGs + saved champion model)
 ```
 
 ---
@@ -86,6 +86,10 @@ After running `main.py`, check:
 - `results/diagnostic_composition.csv`      — diagnostic composition table
 - `results/grand_champion_model.pkl`        — saved final model for inference
 - `results/grand_champion_config.json`      — metadata for inference
+- `results/diagnostic_classification_embedding.png`  — diagnostic frequency table (classification × by embedding)
+- `results/diagnostic_classification_model.png`      — diagnostic frequency table (classification × by model)
+- `results/diagnostic_regression_embedding.png`      — diagnostic frequency table (regression-direction × by embedding)
+- `results/diagnostic_regression_model.png`          — diagnostic frequency table (regression-direction × by model)
 - `results/tfidf_vectorizer.pkl`            — only if TF-IDF is selected as champion
 
 ---
