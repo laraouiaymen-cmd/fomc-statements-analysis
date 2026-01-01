@@ -18,6 +18,45 @@ ResultsDict = Dict[str, Dict[str, Dict[str, MetricsDict]]]
 
 from sklearn.metrics import roc_auc_score, accuracy_score
 import pandas as pd
+import matplotlib.pyplot as plt
+
+def save_table_figure(
+    df: pd.DataFrame,
+    title: str,
+    filename: str,
+    save_dir: Path
+) -> None:
+    """
+    Render a DataFrame as a table figure and save to PNG.
+    """
+    plt.figure(figsize=(12, len(df) * 0.5 + 2))
+    ax = plt.gca()
+    
+    # Hide axes
+    ax.xaxis.set_visible(False) 
+    ax.yaxis.set_visible(False)
+    ax.set_frame_on(False)
+    
+    # Create table
+    table = plt.table(
+        cellText=df.values,
+        colLabels=df.columns,
+        cellLoc='center',
+        loc='center',
+        colColours=['#f2f2f2'] * len(df.columns)
+    )
+    
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1.2, 1.5)
+    
+    plt.title(title, pad=20)
+    
+    save_path = save_dir / filename
+    plt.savefig(save_path, bbox_inches='tight', dpi=300)
+    plt.close()
+    print(f"   Saved figure: {save_path}")
+
 
 
 # ============================================================================
@@ -639,6 +678,10 @@ def create_diagnostic_summary(
     
     # CLASSIFICATION TABLES
     print("\n🔹 CLASSIFICATION - EMBEDDING DIAGNOSTIC")
+    
+    # Prepare data for plotting (exclude Interpretation)
+    clf_emb_rows = []
+    
     print("-" * 90)
     print(f"{'Embedding':<12} | {'Uninformative':^15} | {'Dangerous':^11} | {'Reliable':^10} | {'Max AUC':<10} | {'Interpretation':<20}")
     print("-" * 90)
@@ -649,8 +692,28 @@ def create_diagnostic_summary(
         reliable_aucs = [r['Mean_AUC'] for r in clf_data if r['Embedding'] == emb and r['Category'] == 'Reliable']
         max_auc = f"{max(reliable_aucs):.3f}" if reliable_aucs else "N/A"
         print(f"{emb:<12} | {counts['Uninformative']:^15} | {counts['Dangerous']:^11} | {counts['Reliable']:^10} | {max_auc:<10} | {interp:<20}")
+        
+        clf_emb_rows.append({
+            'Embedding': emb,
+            'Uninformative': counts['Uninformative'],
+            'Dangerous': counts['Dangerous'],
+            'Reliable': counts['Reliable'],
+            'Max AUC': max_auc
+        })
+        
+    # Save figure
+    save_table_figure(
+        pd.DataFrame(clf_emb_rows),
+        "Classification - Embedding Diagnostic",
+        "diagnostic_classification_embedding.png",
+        save_dir
+    )
     
     print("\n🔹 CLASSIFICATION - MODEL DIAGNOSTIC")
+    
+    # Prepare data for plotting
+    clf_model_rows = []
+    
     print("-" * 90)
     print(f"{'Model':<22} | {'Uninformative':^15} | {'Dangerous':^11} | {'Reliable':^10} | {'Max AUC':<10} | {'Interpretation':<15}")
     print("-" * 90)
@@ -661,9 +724,29 @@ def create_diagnostic_summary(
         reliable_aucs = [r['Mean_AUC'] for r in clf_data if r['Model'] == mod and r['Category'] == 'Reliable']
         max_auc = f"{max(reliable_aucs):.3f}" if reliable_aucs else "N/A"
         print(f"{mod:<22} | {counts['Uninformative']:^15} | {counts['Dangerous']:^11} | {counts['Reliable']:^10} | {max_auc:<10} | {interp:<15}")
+        
+        clf_model_rows.append({
+            'Model': mod,
+            'Uninformative': counts['Uninformative'],
+            'Dangerous': counts['Dangerous'],
+            'Reliable': counts['Reliable'],
+            'Max AUC': max_auc
+        })
+
+    # Save figure
+    save_table_figure(
+        pd.DataFrame(clf_model_rows),
+        "Classification - Model Diagnostic",
+        "diagnostic_classification_model.png",
+        save_dir
+    )
     
     # REGRESSION TABLES
     print("\n🔹 REGRESSION - EMBEDDING DIAGNOSTIC")
+    
+    # Prepare data for plotting
+    reg_emb_rows = []
+    
     print("-" * 90)
     print(f"{'Embedding':<12} | {'Uninformative':^15} | {'Dangerous':^11} | {'Reliable':^10} | {'Max AUC':<10} | {'Interpretation':<20}")
     print("-" * 90)
@@ -674,8 +757,28 @@ def create_diagnostic_summary(
         reliable_aucs = [r['Mean_AUC'] for r in reg_data if r['Embedding'] == emb and r['Category'] == 'Reliable']
         max_auc = f"{max(reliable_aucs):.3f}" if reliable_aucs else "N/A"
         print(f"{emb:<12} | {counts['Uninformative']:^15} | {counts['Dangerous']:^11} | {counts['Reliable']:^10} | {max_auc:<10} | {interp:<20}")
+        
+        reg_emb_rows.append({
+            'Embedding': emb,
+            'Uninformative': counts['Uninformative'],
+            'Dangerous': counts['Dangerous'],
+            'Reliable': counts['Reliable'],
+            'Max AUC': max_auc
+        })
+
+    # Save figure
+    save_table_figure(
+        pd.DataFrame(reg_emb_rows),
+        "Regression - Embedding Diagnostic",
+        "diagnostic_regression_embedding.png",
+        save_dir
+    )
     
     print("\n🔹 REGRESSION - MODEL DIAGNOSTIC")
+    
+    # Prepare data for plotting
+    reg_model_rows = []
+    
     print("-" * 90)
     print(f"{'Model':<22} | {'Uninformative':^15} | {'Dangerous':^11} | {'Reliable':^10} | {'Max AUC':<10} | {'Interpretation':<15}")
     print("-" * 90)
@@ -686,6 +789,23 @@ def create_diagnostic_summary(
         reliable_aucs = [r['Mean_AUC'] for r in reg_data if r['Model'] == mod and r['Category'] == 'Reliable']
         max_auc = f"{max(reliable_aucs):.3f}" if reliable_aucs else "N/A"
         print(f"{mod:<22} | {counts['Uninformative']:^15} | {counts['Dangerous']:^11} | {counts['Reliable']:^10} | {max_auc:<10} | {interp:<15}")
+
+        reg_model_rows.append({
+            'Model': mod,
+            'Uninformative': counts['Uninformative'],
+            'Dangerous': counts['Dangerous'],
+            'Reliable': counts['Reliable'],
+            'Max AUC': max_auc
+        })
+
+    # Save figure
+    save_table_figure(
+        pd.DataFrame(reg_model_rows),
+        "Regression - Model Diagnostic",
+        "diagnostic_regression_model.png",
+        save_dir
+    )
+
     
     print("\n" + "="*70)
     print(f"💾 Detailed diagnostic breakdown saved to: {detail_path}")
